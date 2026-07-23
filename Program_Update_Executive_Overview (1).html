@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program Update Executive Overview</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#141D56;
+    --coral:#D74F46;
+    --body-bg:#F2F3F7;
+    --page-bg:#F8F8F8;
+    --white:#FFFFFF;
+    --ink:#1B2430;
+    --steel:#5B6B7C;
+    --green:#3E7C4A;
+    --border:#DCDFE6;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--page-bg);
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--ink);
+  }
+  body{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; padding:24px;
+  }
+  .deck-wrap{
+    width:100%; max-width:1220px;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/8.6;
+    max-height:78vh;
+  }
+  .slide{
+    position:absolute; inset:0;
+    background:var(--body-bg);
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(20,29,86,0.18);
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none;
+    transform:translateY(8px);
+    transition:opacity .28s ease, transform .28s ease;
+    overflow:hidden;
+  }
+  .slide.active{
+    opacity:1; pointer-events:auto; transform:translateY(0);
+  }
+  .slide-header{
+    background:var(--navy);
+    color:var(--white);
+    padding:0 28px;
+    height:64px;
+    min-height:64px;
+    display:flex; align-items:center; gap:14px;
+    flex-shrink:0;
+  }
+  .accent-tick{
+    width:6px; height:28px; background:var(--coral); border-radius:1px; flex-shrink:0;
+  }
+  .slide-header h2{
+    margin:0; font-size:22px; font-weight:700; letter-spacing:0.2px;
+  }
+  .slide-body{
+    flex:1;
+    padding:22px 26px;
+    display:flex; gap:18px; min-height:0;
+  }
+  .slide-footer{
+    background:var(--navy);
+    color:#C7D2E0;
+    font-size:12px;
+    padding:0 28px;
+    height:34px;
+    min-height:34px;
+    display:flex; align-items:center;
+    flex-shrink:0;
+  }
+  .panel{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:20px 22px;
+    display:flex; flex-direction:column;
+    min-height:0;
+    flex:1;
+  }
+  .panel.dark{
+    background:var(--navy);
+    border:none;
+    color:#C7D2E0;
+  }
+  .panel-top{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
+  }
+  .icon-badge{
+    width:42px; height:42px; border-radius:50%;
+    background:var(--navy);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .panel.dark .icon-badge{ background:var(--coral); }
+  .icon-badge i{ color:var(--white); font-size:18px; }
+  .panel.dark .icon-badge i{ color:var(--navy); }
+  .tag{
+    font-size:11px; font-weight:700; color:var(--white);
+    padding:5px 14px; border-radius:14px; white-space:nowrap;
+  }
+  .tag.green{ background:var(--green); }
+  .tag.coral{ background:var(--coral); }
+  .panel h3{
+    margin:0 0 10px; font-size:16px; font-weight:700; color:var(--navy);
+  }
+  .panel.dark h3{ color:var(--white); }
+  .panel ul{
+    margin:0; padding-left:18px; font-size:13px; line-height:1.55; color:var(--ink);
+    overflow-y:auto;
+  }
+  .panel.dark ul{ color:#C7D2E0; }
+  .panel ul li{ margin-bottom:9px; }
+  .panel p.desc{
+    font-size:13px; line-height:1.55; color:var(--ink); margin:0;
+  }
+  .panel.dark p.desc{ color:#C7D2E0; }
+  .panel-footer{
+    margin-top:auto; font-size:10.5px; font-style:italic; color:var(--steel); padding-top:10px;
+  }
+  .panel.dark .panel-footer{ color:#9FAEC2; }
+
+  .report-card{ padding:14px 16px; flex:1; }
+  .report-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .icon-badge.small{ width:32px; height:32px; flex-shrink:0; }
+  .icon-badge.small i{ font-size:13px; }
+  .report-card h4{ margin:0; font-size:12.5px; font-weight:700; color:var(--navy); }
+  .report-stats{ margin:0 0 8px; padding-left:16px; font-size:10.5px; line-height:1.4; color:var(--ink); }
+  .report-stats li{ margin-bottom:3px; }
+  .report-card a{
+    font-size:10px; color:var(--coral); text-decoration:none; font-weight:600;
+  }
+  .report-card a:hover{ text-decoration:underline; }
+
+  .two-col{ display:flex; gap:18px; width:100%; }
+  .stat-row{ display:flex; align-items:center; gap:16px; margin:6px 0 14px; }
+  .stat-num{ font-size:34px; font-weight:700; text-align:center; min-width:70px; }
+  .stat-label{ font-size:10px; color:var(--steel); text-align:center; }
+  .stat-arrow{ font-size:24px; color:var(--coral); font-weight:700; }
+  .big-stat{ font-size:30px; font-weight:700; color:var(--coral); margin:6px 0 4px; }
+
+  .nav-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:16px; padding:0 4px;
+  }
+  .nav-btn{
+    background:var(--navy); color:var(--white); border:none; border-radius:8px;
+    width:40px; height:40px; font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s ease;
+  }
+  .nav-btn:hover{ background:#1E2A70; }
+  .nav-btn:disabled{ opacity:0.35; cursor:default; }
+  .nav-btn:disabled:hover{ background:var(--navy); }
+  .dots{ display:flex; gap:8px; }
+  .dot{
+    width:9px; height:9px; border-radius:50%; background:#C7CBD6; cursor:pointer; border:none; padding:0;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .dot.active{ background:var(--navy); transform:scale(1.25); }
+  .page-counter{
+    font-size:13px; color:var(--steel); min-width:48px; text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-wrap">
+  <div class="stage" id="stage">
+
+    <!-- Slide 1: Access Points -->
+    <section class="slide active" data-slide="0">
+      <div class="slide-header"><div class="accent-tick"></div><h2>Access Points</h2></div>
+      <div class="slide-body">
+        <div class="panel">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-satellite-dish"></i></div>
+            <span class="tag green">SUCCESSFUL</span>
+          </div>
+          <h3>Custom operating system</h3>
+          <ul>
+            <li>We started the year developing in three directions at once: reporting tools, core device software, and a custom operating system with our manufacturing partner in China.</li>
+            <li>That third path has now succeeded, unlocking meaningful cost savings while still delivering a quality product to field partners.</li>
+            <li>Our close relationship with the manufacturing partner also gives us an inside track for future updates and for scaling production quickly if needed.</li>
+          </ul>
+          <div class="panel-footer">Highlight 1 of 2</div>
+        </div>
+        <div class="panel">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-signal"></i></div>
+            <span class="tag green">SUCCESSFUL</span>
+          </div>
+          <h3>Reporting across every network</h3>
+          <ul>
+            <li>Our access points now successfully send reporting data over sim connections across every major network type: 3G, 4G, 5G, and LTE.</li>
+            <li>This means the device reports reliably no matter what network generation is available at a given field location.</li>
+            <li>This gives us confidence that reporting will keep working as we deploy to more places with different network conditions.</li>
+          </ul>
+          <div class="panel-footer">Highlight 2 of 2</div>
+        </div>
+      </div>
+      <div class="slide-footer">International Cooperating Ministries &nbsp;|&nbsp; Discipleship Resources &nbsp;|&nbsp; Q2 2026</div>
+    </section>
+
+    <!-- Slide 2: Learning Management System -->
+    <section class="slide" data-slide="1">
+      <div class="slide-header"><div class="accent-tick"></div><h2>Learning Management System</h2></div>
+      <div class="slide-body">
+        <div class="panel">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-graduation-cap"></i></div>
+            <span class="tag coral">BETA TEST</span>
+          </div>
+          <h3>Live and ready to explore</h3>
+          <ul>
+            <li>The learning management system is officially in its beta testing phase.</li>
+            <li>Anyone can set up an account today and begin the learning process right now.</li>
+            <li>This is best experienced live &mdash; <a href="https://foundations.icm.org/new/" target="_blank">https://foundations.icm.org/new/<a/></li>
+          </ul>
+          <div class="panel-footer">Workstream: Learning and development &mdash; <a href="https://foundations.icm.org/new/" target="_blank">https://foundations.icm.org/new/<a/></div>
+        </div>
+      </div>
+      <div class="slide-footer">International Cooperating Ministries &nbsp;|&nbsp; Discipleship Resources &nbsp;|&nbsp; Q2 2026</div>
+    </section>
+
+    <!-- Slide 3: Mobile App Reach and Efficiency -->
+    <section class="slide" data-slide="2">
+      <div class="slide-header"><div class="accent-tick"></div><h2>Mobile App Reach and Efficiency</h2></div>
+      <div class="slide-body">
+        <div class="panel" style="flex:1.55;">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-mobile-screen-button"></i></div>
+          </div>
+          <h3>Language reach</h3>
+          <div class="stat-row">
+            <div>
+              <div class="stat-num" style="color:var(--steel);">12</div>
+              <div class="stat-label">start of year</div>
+            </div>
+            <div class="stat-arrow">&#8594;</div>
+            <div>
+              <div class="stat-num" style="color:var(--navy);">31</div>
+              <div class="stat-label">today</div>
+            </div>
+          </div>
+          <p class="desc">The mobile app now supports 31 languages, up from 12 at the start of the year, with more languages planned over the next quarter to help us reach more people globally.</p>
+          <div class="panel-footer">Workstream: Mobile app</div>
+        </div>
+        <div class="panel dark">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-coins"></i></div>
+          </div>
+          <h3>Cost efficiency</h3>
+          <div class="big-stat">$12,000</div>
+          <p class="desc" style="margin-bottom:10px;">saved per year (about $300/month), sustained over the past 2 years</p>
+          <p class="desc">Achieved by training and building our own internal team, rather than relying on outside app developers, and hosting the app ourselves.</p>
+          <div class="panel-footer">Program-wide efficiency</div>
+        </div>
+      </div>
+      <div class="slide-footer">International Cooperating Ministries &nbsp;|&nbsp; Discipleship Resources &nbsp;|&nbsp; Q2 2026</div>
+    </section>
+
+    <!-- Slide 4: Partner Support and Reporting Pages -->
+    <section class="slide" data-slide="3">
+      <div class="slide-header"><div class="accent-tick"></div><h2>Partner Support and Reporting Pages</h2></div>
+      <div class="slide-body">
+        <div class="panel" style="flex-grow;">
+          <div class="panel-top">
+            <div class="icon-badge"><i class="fa-solid fa-handshake"></i></div>
+            <span class="tag green">OPERATIONAL</span>
+          </div>
+          <h3>Aggregating what our partners need, in one place</h3>
+          <ul>
+            <li>Support pages bring together content and resources our partners have helped us gather, giving field partners one place to find what they need.</li>
+            <li>Built and maintained together with partners including Jesus Film, Superbook, and Faith Comes By Hearing.</li>
+            <li>These pages directly support our field partners as they carry out ministry and community work.</li>
+          </ul>
+          <div class="panel-footer">Workstream: Partner support</div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+          <div class="panel report-card">
+            <div class="report-top">
+              <div class="icon-badge small"><i class="fa-solid fa-book-open"></i></div>
+              <h4>Superbook Reporting Dashboard</h4>
+            </div>
+            <ul class="report-stats">
+              <li>104,877 devices distributed across 48 countries (2020&ndash;Present)</li>
+              <li>179 shipments &mdash; access points, projectors, SD cards, and USB devices</li>
+            </ul>
+            <a href="https://foundations.icm.org/reports/sb.php" target="_blank" rel="noopener">foundations.icm.org/reports/sb.php</a>
+          </div>
+          <div class="panel report-card">
+            <div class="report-top">
+              <div class="icon-badge small"><i class="fa-solid fa-film"></i></div>
+              <h4>Jesus Film Reporting Dashboard</h4>
+            </div>
+            <ul class="report-stats">
+              <li>41,460 devices distributed across 28 countries (2024&ndash;Present)</li>
+              <li>106 shipments &mdash; access points, projectors, SD cards, and USB devices</li>
+            </ul>
+            <a href="https://foundations.icm.org/reports/jf.php" target="_blank" rel="noopener">foundations.icm.org/reports/jf.php</a>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">International Cooperating Ministries &nbsp;|&nbsp; Discipleship Resources &nbsp;|&nbsp; Q2 2026</div>
+    </section>
+
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+    <div class="dots" id="dots"></div>
+    <div class="page-counter" id="pageCounter">1 / 4</div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const pageCounter = document.getElementById('pageCounter');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(dot);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function render(){
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    pageCounter.textContent = (current + 1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+
+  function goTo(i){
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    render();
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  render();
+</script>
+
+</body>
+</html>
